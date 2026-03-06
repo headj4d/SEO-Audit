@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Audit Agent — Technical SEO Audit Tool</title>
+  <meta name="description"
+    content="Professional technical SEO audit tool. Analyze Screaming Frog & Ahrefs data, check PageSpeed, robots.txt, and generate client-ready reports.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="src/style.css">
+
+  <!-- PapaParse for CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- docx for Word export -->
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+  <!-- FileSaver for download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+
+<body>
+
+  <!-- ==================== SIDEBAR NAV ==================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+      </div>
+      <span class="brand-text">SEO Audit</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" data-view="auto-audit" id="nav-auto-audit" style="color:#60a5fa">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+          <polyline points="17 6 23 6 23 12" />
+        </svg>
+        <span>Auto Audit</span>
+      </button>
+      <button class="nav-item active" data-view="dashboard" id="nav-dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-view="pagespeed" id="nav-pagespeed">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+        <span>PageSpeed</span>
+      </button>
+      <button class="nav-item" data-view="h1-checker" id="nav-h1">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 12h8" />
+          <path d="M4 18V6" />
+          <path d="M12 18V6" />
+          <path d="m17 12 3-2v8" />
+        </svg>
+        <span>H1 Tags</span>
+      </button>
+      <button class="nav-item" data-view="robots-ai" id="nav-robots">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="10" rx="2" />
+          <circle cx="12" cy="5" r="2" />
+          <path d="M12 7v4" />
+          <path d="M8 16h0" />
+          <path d="M16 16h0" />
+        </svg>
+        <span>AI Bots</span>
+      </button>
+      <button class="nav-item" data-view="meta-titles" id="nav-meta">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 7V4h16v3" />
+          <path d="M9 20h6" />
+          <path d="M12 4v16" />
+        </svg>
+        <span>Meta Titles</span>
+      </button>
+      <button class="nav-item" data-view="duplicate-titles" id="nav-duplicate-titles">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+        <span>Duplicate Titles</span>
+      </button>
+      <button class="nav-item" data-view="external-domains" id="nav-domains">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h20" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        <span>External Links</span>
+      </button>
+      <button class="nav-item" data-view="shopify-urls" id="nav-shopify">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </svg>
+        <span>URL Structure</span>
+      </button>
+      <button class="nav-item" data-view="broken-links" id="nav-broken">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 7h3a5 5 0 0 1 0 10h-3m-6 0H6A5 5 0 0 1 6 7h3" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+        <span>Broken Links</span>
+      </button>
+      <button class="nav-item" data-view="screenshots" id="nav-screenshots">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="9" cy="9" r="2" />
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+        </svg>
+        <span>Screenshots</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-generate" id="btn-generate-report">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14,2 14,8 20,8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+        Generate Report
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-content" id="main-content">
+
+    <!-- HEADER -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <div>
+          <h1 class="page-title" id="page-title">Dashboard</h1>
+          <p class="page-subtitle" id="page-subtitle">Overview of your technical SEO audit</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="audit-domain-wrap">
+          <label for="audit-domain">Auditing:</label>
+          <input type="text" id="audit-domain" placeholder="example.com" class="domain-input">
+        </div>
+      </div>
+    </header>
+
+    <!-- VIEW CONTAINER -->
+    <div class="view-container" id="view-container">
+
+      <!-- ===== AUTO AUDIT VIEW (NEW) ===== -->
+      <section class="view" id="view-auto-audit">
+        <div class="card">
+          <h2 class="card-title">Automated Technical Audit</h2>
+          <p class="card-desc">Enter your website URL to automatically crawl pages, check PageSpeed, analyze tags, and
+            generate a full report.</p>
+
+          <div class="input-row">
+            <input type="url" id="auto-audit-url" placeholder="https://example.com" class="text-input" style="flex:1">
+            <button class="btn-primary" id="btn-auto-audit-start">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                <polyline points="17 6 23 6 23 12" />
+              </svg>
+              Run Full Audit
+            </button>
+          </div>
+
+          <p class="or-divider" style="margin: 20px 0;">— or —</p>
+
+          <div class="upload-zone" id="auto-audit-csv-zone" style="border-style: dashed; padding: 25px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17,8 12,3 7,8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p>Import Screaming Frog Crawl CSV or <label for="auto-audit-csv-input" class="file-label">browse</label>
+            </p>
+            <input type="file" id="auto-audit-csv-input" accept=".csv" style="display:none">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+            <div class="upload-zone" id="ahrefs-backlinks-zone"
+              style="border-style: dashed; padding: 15px; font-size: 0.85rem;">
+              <p>Ahrefs Broken Backlinks (.csv)</p>
+              <input type="file" id="ahrefs-backlinks-input" accept=".csv" style="display:none">
+            </div>
+            <div class="upload-zone" id="ahrefs-fourxx-zone"
+              style="border-style: dashed; padding: 15px; font-size: 0.85rem;">
+              <p>Ahrefs 4xx Pages (.csv)</p>
+              <input type="file" id="ahrefs-fourxx-input" accept=".csv" style="display:none">
+            </div>
+          </div>
+
+          <div class="upload-zone" id="audit-file-zone" style="border-style: dashed; padding: 20px; margin-top: 12px;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14,2 14,8 20,8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+            <p>Screaming Frog Audit Overview (.csv) or <label for="audit-file-input" class="file-label">browse</label>
+            </p>
+            <input type="file" id="audit-file-input" accept=".csv,.tsv,.txt" style="display:none">
+          </div>
+
+          <div id="audit-file-results" style="display:none; margin-top:20px;"></div>
+
+          <!-- Progress Area -->
+          <div id="auto-audit-progress" class="audit-progress" style="display:none; margin-top:20px;">
+            <h3 class="sub-title">Audit Progress</h3>
+            <div class="progress-steps" id="progress-steps">
+              <!-- Steps injected here -->
+            </div>
+            <div class="audit-log" id="audit-log"
+              style="background:#0f172a; padding:10px; border-radius:6px; font-family:monospace; font-size:12px; height:150px; overflow-y:auto; color:#94a3b8; margin-top:10px;">
+            </div>
+          </div>
+
+          <!-- Results / Download -->
+          <div id="auto-audit-results" style="display:none; margin-top:20px; text-align:center;">
+            <div class="success-banner"
+              style="background:rgba(5, 150, 105, 0.1); color:#10b981; padding:15px; border-radius:8px; margin-bottom:15px;">
+              <strong>Audit Complete!</strong> All checks finished successfully.
+            </div>
+            <button class="btn-primary" id="btn-download-auto-report" style="width:100%; justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7,10 12,15 17,10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download .docx Report
+            </button>
+            <p style="margin-top:10px; font-size:14px; color:#94a3b8;">You can also explore detailed findings in the
+              sidebar tabs.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== DASHBOARD VIEW ===== -->
+      <section class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card stat-critical">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-count" id="stat-critical">0</span>
+              <span class="stat-label">Critical Issues</span>
+            </div>
+          </div>
+          <div class="stat-card stat-warning">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-count" id="stat-warnings">0</span>
+              <span class="stat-label">Warnings</span>
+            </div>
+          </div>
+          <div class="stat-card stat-pass">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22,4 12,14.01 9,11.01" />
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-count" id="stat-passed">0</span>
+              <span class="stat-label">Passed</span>
+            </div>
+          </div>
+          <div class="stat-card stat-screenshots">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-count" id="stat-screenshots">0</span>
+              <span class="stat-label">Screenshots</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card issues-summary-card">
+            <h2 class="card-title">Audit Checks Status</h2>
+            <div class="checks-list" id="checks-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+          <div class="card quick-actions-card">
+            <h2 class="card-title">Quick Start</h2>
+            <p class="card-desc">Begin your audit by working through each check. Upload data from Screaming Frog &
+              Ahrefs, run automated checks, and add screenshots.</p>
+            <div class="quick-actions">
+              <button class="quick-action-btn" data-view="pagespeed">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+                Run PageSpeed Test
+              </button>
+              <button class="quick-action-btn" data-view="h1-checker">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17,8 12,3 7,8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Upload Screaming Frog CSV
+              </button>
+              <button class="quick-action-btn" data-view="broken-links">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17,8 12,3 7,8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Upload Ahrefs Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGESPEED VIEW ===== -->
+      <section class="view" id="view-pagespeed">
+        <div class="card">
+          <h2 class="card-title">Google PageSpeed Insights</h2>
+          <p class="card-desc">Enter a URL to test. Pages scoring below 50 will be flagged as critical issues.</p>
+          <div class="input-row">
+            <input type="url" id="pagespeed-url" placeholder="https://example.com" class="text-input">
+            <button class="btn-primary" id="btn-pagespeed-run">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+              Test
+            </button>
+          </div>
+          <div id="pagespeed-loading" class="loading-indicator" style="display:none">
+            <div class="spinner"></div>
+            <span>Running PageSpeed test... this may take 15-30 seconds</span>
+          </div>
+          <div id="pagespeed-results" class="results-area"></div>
+        </div>
+      </section>
+
+      <!-- ===== H1 CHECKER VIEW ===== -->
+      <section class="view" id="view-h1-checker">
+        <div class="card">
+          <h2 class="card-title">H1 Tag Analysis</h2>
+          <p class="card-desc">Upload your Screaming Frog CSV export to check for missing or multiple H1 tags.</p>
+          <div class="upload-zone" id="h1-upload-zone">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17,8 12,3 7,8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p>Drag & drop Screaming Frog CSV or <label for="h1-file-input" class="file-label">browse</label></p>
+            <input type="file" id="h1-file-input" accept=".csv" style="display:none">
+          </div>
+          <div id="h1-results" class="results-area"></div>
+        </div>
+      </section>
+
+      <!-- ===== ROBOTS AI VIEW ===== -->
+      <section class="view" id="view-robots-ai">
+        <div class="card">
+          <h2 class="card-title">AI Bots / LLMs in robots.txt</h2>
+          <p class="card-desc">Check if AI crawlers are blocked or allowed in the site's robots.txt file.</p>
+          <div class="input-row">
+            <input type="url" id="robots-url" placeholder="https://example.com/robots.txt" class="text-input">
+            <button class="btn-primary" id="btn-robots-fetch">Fetch & Check</button>
+          </div>
+          <p class="or-divider">— or paste robots.txt content below —</p>
+          <textarea id="robots-content" class="text-area" rows="10"
+            placeholder="Paste robots.txt content here..."></textarea>
+          <button class="btn-secondary" id="btn-robots-check" style="margin-top:12px">Analyze Pasted Content</button>
+          <div id="robots-results" class="results-area"></div>
+        </div>
+      </section>
+
+      <!-- ===== DUPLICATE TITLES VIEW ===== -->
+      <section class="view" id="view-duplicate-titles">
+        <div class="card">
+          <h2 class="card-title">Duplicated Page Titles</h2>
+          <p class="card-desc">Duplicate page titles across multiple pages can confuse search engines and dilute your
+            SEO efforts.</p>
+
+          <div class="empty-state" id="duplicate-titles-empty">
+            <p>Upload a Screaming Frog CSV in the Meta Titles tab or Auto Audit tab to see duplicated titles.</p>
+          </div>
+
+          <div id="duplicate-titles-results" style="display:none;">
+            <!-- Results populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== META TITLES VIEW ===== -->
+      <section class="view" id="view-meta-titles">
+        <div class="card">
+          <h2 class="card-title">Meta Titles Analysis</h2>
+          <p class="card-desc">Upload Screaming Frog CSV to find meta titles that are too long (>60 chars) or
+            unoptimized.</p>
+          <div class="upload-zone" id="meta-upload-zone">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17,8 12,3 7,8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p>Drag & drop Screaming Frog CSV or <label for="meta-file-input" class="file-label">browse</label></p>
+            <input type="file" id="meta-file-input" accept=".csv" style="display:none">
+          </div>
+          <div id="meta-results" class="results-area"></div>
+        </div>
+      </section>
+
+      <!-- ===== EXTERNAL DOMAINS VIEW ===== -->
+      <section class="view" id="view-external-domains">
+        <div class="card">
+          <h2 class="card-title">External Do-Follow Domains</h2>
+          <p class="card-desc">Upload Ahrefs "Linked Domains" export to review do-follow external links. Flag irrelevant
+            ones.</p>
+          <div class="upload-zone" id="domains-upload-zone">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17,8 12,3 7,8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p>Drag & drop Ahrefs Linked Domains CSV or <label for="domains-file-input"
+                class="file-label">browse</label></p>
+            <input type="file" id="domains-file-input" accept=".csv" style="display:none">
+          </div>
+          <div id="domains-results" class="results-area"></div>
+        </div>
+      </section>
+
+      <!-- ===== SHOPIFY URLS VIEW ===== -->
+      <section class="view" id="view-shopify-urls">
+        <div class="card">
+          <h2 class="card-title">Shopify URL Structure Check</h2>
+          <p class="card-desc">Paste product URLs to detect the duplicate <code>/collections/*/products/*</code>
+            pattern. The correct canonical structure should be <code>/products/slug</code>.</p>
+          <textarea id="shopify-urls-input" class="text-area" rows="8"
+            placeholder="Paste URLs here, one per line...&#10;e.g. https://store.com/collections/apparel/products/blue-t-shirt&#10;https://store.com/products/blue-t-shirt"></textarea>
+          <button class="btn-primary" id="btn-shopify-check" style="margin-top:12px">Analyze URLs</button>
+          <div id="shopify-results" class="results-area"></div>
+        </div>
+      </section>
+
+      <!-- ===== BROKEN LINKS VIEW ===== -->
+      <section class="view" id="view-broken-links">
+        <div class="card">
+          <h2 class="card-title">Broken Backlinks & 4xx Pages</h2>
+          <p class="card-desc">Upload Ahrefs CSV exports for broken backlinks and/or 4xx pages.</p>
+          <div class="upload-grid">
+            <div>
+              <h3 class="sub-title">Broken Backlinks</h3>
+              <div class="upload-zone upload-zone-sm" id="backlinks-upload-zone">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17,8 12,3 7,8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <p>Ahrefs Broken Backlinks CSV</p>
+                <input type="file" id="backlinks-file-input" accept=".csv" style="display:none">
+              </div>
+            </div>
+            <div>
+              <h3 class="sub-title">4xx Pages</h3>
+              <div class="upload-zone upload-zone-sm" id="fourxx-upload-zone">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17,8 12,3 7,8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <p>Ahrefs 4xx Pages CSV</p>
+                <input type="file" id="fourxx-file-input" accept=".csv" style="display:none">
+              </div>
+            </div>
+          </div>
+          <div id="broken-results" class="results-area"></div>
+        </div>
+      </section>
+
+      <!-- ===== SCREENSHOTS VIEW ===== -->
+      <section class="view" id="view-screenshots">
+        <div class="card">
+          <h2 class="card-title">Evidence Screenshots</h2>
+          <p class="card-desc">Upload screenshots of issues. Associate each with an audit category and add notes.</p>
+          <div class="upload-zone" id="screenshot-upload-zone">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="9" cy="9" r="2" />
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            </svg>
+            <p>Drag & drop screenshots or <label for="screenshot-file-input" class="file-label">browse</label></p>
+            <input type="file" id="screenshot-file-input" accept="image/*" multiple style="display:none">
+          </div>
+          <div id="screenshots-gallery" class="screenshots-gallery"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- REPORT MODAL -->
+  <div class="modal-overlay" id="report-modal" style="display:none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Generate Audit Report</h2>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="report-client">Client / Company Name</label>
+          <input type="text" id="report-client" placeholder="Client Name" class="text-input">
+        </div>
+        <div class="form-group">
+          <label for="report-auditor">Auditor Name</label>
+          <input type="text" id="report-auditor" placeholder="Your Name" class="text-input">
+        </div>
+        <div class="form-group">
+          <label for="report-date">Audit Date</label>
+          <input type="date" id="report-date" class="text-input">
+        </div>
+        <button class="btn-primary btn-full" id="btn-download-docx">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7,10 12,15 17,10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download .docx (Google Docs compatible)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Modules -->
+  <script src="src/utils/constants.js"></script>
+  <script src="src/utils/csv-parser.js"></script>
+  <script src="src/modules/pagespeed.js"></script>
+  <script src="src/modules/h1-checker.js"></script>
+  <script src="src/modules/robots-ai.js"></script>
+  <script src="src/modules/duplicate-titles.js"></script>
+  <script src="src/modules/meta-titles.js"></script>
+  <script src="src/modules/external-domains.js"></script>
+  <script src="src/modules/shopify-urls.js"></script>
+  <script src="src/modules/broken-links.js"></script>
+  <script src="src/modules/screenshots.js"></script>
+  <script src="src/report/report-generator.js"></script>
+  <script src="src/modules/audit-file-parser.js"></script>
+  <script src="src/modules/auto-audit.js"></script>
+  <script src="src/main.js"></script>
+
+</body>
+
+</html>

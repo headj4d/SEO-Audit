@@ -1,0 +1,5 @@
+node_modules/
+temp-screenshots/
+*.bat
+.env
+*.log
