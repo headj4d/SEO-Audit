@@ -4,11 +4,27 @@
 var SEO_CONSTANTS = {
     // Known AI / LLM crawler user-agent tokens
     AI_BOTS: [
+        { name: 'GPTBot', label: 'OpenAI / ChatGPT' },
+        { name: 'ChatGPT-User', label: 'ChatGPT Browse' },
+        { name: 'OAI-SearchBot', label: 'OpenAI Search' },
+        { name: 'anthropic-ai', label: 'Anthropic / Claude' },
+        { name: 'ClaudeBot', label: 'Claude AI' },
+        { name: 'Claude-Web', label: 'Claude Web' },
+        { name: 'Google-Extended', label: 'Google Gemini / Bard' },
         { name: 'Googlebot', label: 'Google Search' },
-        { name: 'AdsBot-Google', label: 'AdsBot-Google' },
-        { name: 'Bingbot', label: 'Bingbot' },
-        { name: 'ChatGPT', label: 'ChatGPT' },
-        { name: 'OpenAI', label: 'OpenAI' },
+        { name: 'Bingbot', label: 'Bing / Copilot' },
+        { name: 'PerplexityBot', label: 'Perplexity AI' },
+        { name: 'YouBot', label: 'You.com AI' },
+        { name: 'CCBot', label: 'Common Crawl (AI Training)' },
+        { name: 'cohere-ai', label: 'Cohere AI' },
+        { name: 'FacebookBot', label: 'Meta AI' },
+        { name: 'Diffbot', label: 'Diffbot AI' },
+        { name: 'Bytespider', label: 'ByteDance / TikTok AI' },
+        { name: 'PetalBot', label: 'Huawei AI' },
+        { name: 'Applebot-Extended', label: 'Apple AI Training' },
+        { name: 'Applebot', label: 'Apple Search' },
+        { name: 'ImagesiftBot', label: 'ImageSift AI' },
+        { name: 'Omgilibot', label: 'Meltwater AI' },
     ],
 
     // Meta title thresholds
@@ -32,8 +48,10 @@ var SEO_CONSTANTS = {
         { id: 'meta-titles', name: 'Meta Titles Too Long', view: 'meta-titles' },
         { id: 'duplicate-titles', name: 'Duplicate Page Titles', view: 'duplicate-titles' },
         { id: 'shopify-urls', name: 'Shopify URL Structure', view: 'shopify-urls' },
-        { id: 'broken-backlinks', name: 'Broken Backlinks', view: 'broken-links' },
-        { id: 'fourxx-pages', name: '4xx Broken Pages', view: 'broken-links' },
+        { id: 'fourxx-pages', name: '4xx Broken Pages', view: '4xx-issues' },
+        { id: 'missing-alt', name: 'Images with Missing Alt', view: 'missing-alt' },
+        { id: 'schema-validation', name: 'Schema Validation', view: 'schema-checker' },
+        { id: 'spammy-domains', name: 'Spammy Referring Domains', view: 'spammy-domains' },
     ],
 
     SEVERITY: {
@@ -54,7 +72,10 @@ var SEO_CONSTANTS = {
         { value: 'shopify', label: 'Shopify URL Structure' },
         { value: 'backlinks', label: 'Broken Backlinks' },
         { value: 'fourxx', label: '4xx Pages' },
+        { id: 'missing-alt', label: 'Images Missing Alt Text' },
         { value: 'duplicate-titles', label: 'Duplicate Titles' },
+        { value: 'schema', label: 'Schema Validation' },
+        { value: 'spammy-domains', label: 'Spammy Domains' },
         { value: 'other', label: 'Other' },
     ],
 };

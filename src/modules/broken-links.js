@@ -15,6 +15,7 @@ var BrokenLinksModule = {
     _setupUpload: function (zoneId, inputId, handler) {
         var zone = document.getElementById(zoneId);
         var input = document.getElementById(inputId);
+        if (!zone || !input) return;
         zone.addEventListener('click', function (e) {
             if (e.target.tagName === 'LABEL' || e.target.tagName === 'INPUT') return;
             input.click();

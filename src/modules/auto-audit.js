@@ -31,34 +31,29 @@ var AutoAuditModule = {
             });
         }
 
-        // Ahrefs Upload UI
-        var backlinksZone = document.getElementById('ahrefs-backlinks-zone');
-        var backlinksInput = document.getElementById('ahrefs-backlinks-input');
-        if (backlinksZone && backlinksInput) {
-            backlinksZone.addEventListener('click', function () { backlinksInput.click(); });
-            backlinksZone.addEventListener('dragover', function (e) { e.preventDefault(); backlinksZone.classList.add('dragover'); });
-            backlinksZone.addEventListener('dragleave', function () { backlinksZone.classList.remove('dragover'); });
-            backlinksZone.addEventListener('drop', function (e) {
-                e.preventDefault(); backlinksZone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) self.processAhrefsBacklinks(e.dataTransfer.files[0]);
+        // Ahrefs Spammy Domains UI in Auto Audit
+        var spamZone = document.getElementById('auto-spammy-domains-zone');
+        var spamInput = document.getElementById('auto-spammy-domains-input');
+        if (spamZone && spamInput) {
+            spamZone.addEventListener('click', function (e) {
+                if (e.target.tagName === 'LABEL' || e.target.tagName === 'INPUT') return;
+                spamInput.click();
             });
-            backlinksInput.addEventListener('change', function () {
-                if (backlinksInput.files.length) self.processAhrefsBacklinks(backlinksInput.files[0]);
+            spamZone.addEventListener('dragover', function (e) { e.preventDefault(); spamZone.classList.add('dragover'); });
+            spamZone.addEventListener('dragleave', function () { spamZone.classList.remove('dragover'); });
+            spamZone.addEventListener('drop', function (e) {
+                e.preventDefault();
+                spamZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    if(window.SpammyDomainsModule) SpammyDomainsModule.processFile(e.dataTransfer.files[0]);
+                    spamZone.querySelector('p').textContent = '✓ Uploaded: ' + e.dataTransfer.files[0].name;
+                }
             });
-        }
-
-        var fourxxZone = document.getElementById('ahrefs-fourxx-zone');
-        var fourxxInput = document.getElementById('ahrefs-fourxx-input');
-        if (fourxxZone && fourxxInput) {
-            fourxxZone.addEventListener('click', function () { fourxxInput.click(); });
-            fourxxZone.addEventListener('dragover', function (e) { e.preventDefault(); fourxxZone.classList.add('dragover'); });
-            fourxxZone.addEventListener('dragleave', function () { fourxxZone.classList.remove('dragover'); });
-            fourxxZone.addEventListener('drop', function (e) {
-                e.preventDefault(); fourxxZone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) self.processAhrefsFourxx(e.dataTransfer.files[0]);
-            });
-            fourxxInput.addEventListener('change', function () {
-                if (fourxxInput.files.length) self.processAhrefsFourxx(fourxxInput.files[0]);
+            spamInput.addEventListener('change', function () {
+                if (spamInput.files.length) {
+                    if(window.SpammyDomainsModule) SpammyDomainsModule.processFile(spamInput.files[0]);
+                    spamZone.querySelector('p').textContent = '✓ Uploaded: ' + spamInput.files[0].name;
+                }
             });
         }
 
@@ -166,7 +161,6 @@ var AutoAuditModule = {
             { id: 'metaTitles', label: 'Meta Titles' },
             { id: 'externalLinks', label: 'External Links' },
             { id: 'urlStructure', label: 'URL Structure' },
-            { id: 'brokenLinks', label: 'Broken Links' },
             { id: 'screenshots', label: 'Screenshots' }
         ];
 
@@ -215,7 +209,6 @@ var AutoAuditModule = {
             'metaTitles': 'meta-titles',
             'externalLinks': 'external-domains',
             'urlStructure': 'shopify-urls',
-            'brokenLinks': 'broken-links',
             'screenshots': 'screenshots'
         };
 
@@ -224,7 +217,13 @@ var AutoAuditModule = {
             var detail = 'Auto-checked';
             if (step === 'h1') detail = (data.missing.length + data.multiple.length) + ' issues found';
             if (step === 'metaTitles') detail = (data.tooLong.length + data.missing.length) + ' issues found';
-            if (step === 'brokenLinks') detail = data.length + ' broken links';
+            if (step === 'robots' && data && data.results) {
+                var blocked = data.results.filter(function (r) { return r.status === 'blocked'; });
+                detail = blocked.length > 0 ? blocked.length + ' AI bots blocked' : 'All AI bots allowed';
+                // Feed results into the Robots AI tab UI
+                RobotsAIModule.results = data.results;
+                RobotsAIModule.displayResults(data.results, data.robotsUrl);
+            }
 
             AuditState.setCheck(checkId, severity, detail);
         }
@@ -232,8 +231,6 @@ var AutoAuditModule = {
         // Exception: Screenshots gallery
         if (step === 'screenshots' && data.path) {
             // This likely won't work easily as the path is server-side.
-            // The report generator handles screenshots server-side.
-            // The UI doesn't need to show them necessarily, but it would be nice.
         }
     },
 

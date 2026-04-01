@@ -60,9 +60,10 @@ async function runAudit(domain, sendEvent) {
     // Step 3: robots.txt AI check
     sendEvent('progress', { step: 'robots', status: 'running', message: 'Checking robots.txt for AI bots...' });
     try {
-        results.robots = await checkRobotsAI(baseUrl);
-        const blocked = results.robots.filter(r => r.status === 'blocked').length;
-        sendEvent('result', { step: 'robots', severity: blocked > 0 ? 'warning' : 'pass', data: results.robots });
+        const robotsData = await checkRobotsAI(baseUrl);
+        results.robots = robotsData;
+        const blocked = robotsData.results.filter(r => r.status === 'blocked').length;
+        sendEvent('result', { step: 'robots', severity: blocked > 0 ? 'warning' : 'pass', data: robotsData });
     } catch (err) {
         sendEvent('progress', { step: 'robots', status: 'error', message: err.message });
     }

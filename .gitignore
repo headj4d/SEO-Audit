@@ -3,3 +3,7 @@ temp-screenshots/
 *.bat
 .env
 *.log
+
+*.csv
+test*.js
+test*.html

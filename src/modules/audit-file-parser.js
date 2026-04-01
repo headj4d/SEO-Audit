@@ -26,8 +26,7 @@ var AuditFileParser = {
         'Page Titles: Duplicate': { check: 'duplicate-titles', severity: 'critical', tab: 'duplicate-titles' },
 
         // Broken Links / 4xx
-        'Response Codes: Internal Client Error (4xx)': { check: 'fourxx-pages', severity: 'critical', tab: 'broken-links' },
-        'Links: Broken Internal Links': { check: 'broken-backlinks', severity: 'critical', tab: 'broken-links' },
+        'Response Codes: Internal Client Error (4xx)': { check: 'fourxx-pages', severity: 'critical', tab: '4xx-issues' },
 
         // URL Structure
         'URL: Uppercase': { check: 'shopify-urls', severity: 'warning', tab: 'shopify-urls' },
@@ -132,6 +131,9 @@ var AuditFileParser = {
 
                 // Map to app checks
                 self.mapToChecks(issues);
+
+                // Notify other modules (e.g. FourxxIssuesModule) about parsed data
+                document.dispatchEvent(new CustomEvent('auditFileParserReady', { detail: { issues: issues } }));
 
                 // Display full overview
                 self.displayResults(issues);

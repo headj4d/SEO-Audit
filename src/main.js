@@ -37,7 +37,11 @@ var App = {
         DuplicateTitlesModule.init();
         ExternalDomainsModule.init();
         ShopifyUrlsModule.init();
-        BrokenLinksModule.init();
+        if (window.BrokenLinksModule) BrokenLinksModule.init();
+        FourxxIssuesModule.init();
+        if (window.SchemaValidationModule) SchemaValidationModule.init();
+        if (window.MissingAltModule) MissingAltModule.init();
+        if (window.SpammyDomainsModule) SpammyDomainsModule.init();
         ScreenshotsModule.init();
 
         // Set default date
@@ -83,6 +87,10 @@ var App = {
             'external-domains': ['External Domains', 'Review do-follow external links'],
             'shopify-urls': ['URL Structure', 'Check for Shopify URL pattern issues'],
             'broken-links': ['Broken Links', 'Analyze broken backlinks and 4xx pages'],
+            '4xx-issues': ['4xx Issues', 'Pages returning client error response codes from Screaming Frog'],
+            'schema-checker': ['Schema Validation', 'Validate structured data using Google Rich Results Test'],
+            'missing-alt': ['Images with Missing Alt Text', 'Checks the audited website for images missing alt text and lists affected pages and image URLs.'],
+            'spammy-domains': ['Spammy Domains', 'Identify spammy or low-quality referring domains'],
             'screenshots': ['Evidence Screenshots', 'Upload and categorize issue screenshots']
         };
 
